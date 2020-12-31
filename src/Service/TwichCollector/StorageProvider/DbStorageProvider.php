@@ -43,7 +43,7 @@ class DbStorageProvider implements IStorageProvider
             $chat = new Chat();
             $chat->setVideoId($chatDic);
             $chat->setMsg($msg->message);
-            $chat->setTimeOffset($msg->offset);
+            $chat->setTimeOffset((int)$msg->offset);
             $this->em->persist($chat);
         }
 
@@ -52,11 +52,11 @@ class DbStorageProvider implements IStorageProvider
 
     /**
      * @param int $videoId
-     * @return null|ChatDictionary[]
+     * @return null|ChatDictionary
      */
-    public function getChatData(int $videoId): ?array
+    public function getChatData(int $videoId): ?ChatDictionary
     {
-        return $this->em->getRepository(ChatDictionary::class)->findBy([
+        return $this->em->getRepository(ChatDictionary::class)->findOneBy([
             'videoId' => $videoId
         ]);
     }

@@ -23,7 +23,7 @@ class Chat
     private $msg;
 
     /**
-     * @ORM\Column(type="float")
+     * @ORM\Column(type="integer")
      */
     private $timeOffset;
 
@@ -52,10 +52,10 @@ class Chat
 
     public function getTimeOffset(): ?int
     {
-        return $this->timeOffset;
+        return (int)$this->timeOffset;
     }
 
-    public function setTimeOffset(float $timeOffset): self
+    public function setTimeOffset(int $timeOffset): self
     {
         $this->timeOffset = $timeOffset;
 
