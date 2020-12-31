@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Service\RabbitMQ\Publisher;
 use App\Service\TwichCollector\StorageProvider\DbStorageProvider;
 use App\Service\TwichCollector\TwichChatCollector;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,7 +26,6 @@ class MainPageController extends AbstractController
      */
     public function index(): Response
     {
-        (new TwichChatCollector())->collect(837062619, $this->storageProvider);
         return $this->json([
             'message' => 'Welcome to your new controller!',
             'path' => 'src/Controller/MainPageController.php',
