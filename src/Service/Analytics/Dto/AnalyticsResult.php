@@ -21,6 +21,16 @@ class AnalyticsResult implements JsonSerializable
 
     public function jsonSerialize(): array
     {
-        return get_object_vars($this);
+        return [
+            'chatActivity' => [
+                'values' => $this->chatActivity
+            ],
+            'highLiteOffset' =>
+                $this->highLiteOffset
+            ,
+            'chatAnalyseByCriteria' => [
+                'values' => $this->chatAnalyseByCriteria
+            ]
+        ];
     }
 }
