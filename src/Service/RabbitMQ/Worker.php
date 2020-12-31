@@ -15,31 +15,26 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Worker
 {
-    private const RABBITMQ_HOST = '109.248.59.124';
-    private const RABBITMQ_PORT = '5672';
-    private const RABBITMQ_USERNAME = 'guest';
-    private const RABBITMQ_PASSWORD = 'guest';
-    private const RABBITMQ_QUEUE_NAME = 'collect_msg_task_queue';
-
     /**
+     * @param array $credentials
      * @param OutputInterface $output
      * @param IStorageProvider $storageProvider
      * @throws ErrorException
      */
-    public function readMessage(OutputInterface $output, IStorageProvider $storageProvider): void
+    public function readMessage(array $credentials, OutputInterface $output, IStorageProvider $storageProvider): void
     {
         $connection = new AMQPStreamConnection(
-            self::RABBITMQ_HOST,
-            self::RABBITMQ_PORT,
-            self::RABBITMQ_USERNAME,
-            self::RABBITMQ_PASSWORD
+            $credentials['host'],
+            $credentials['port'],
+            $credentials['user'],
+            $credentials['pass']
         );
 
         $channel = $connection->channel();
 
 # Create the queue if it doesnt already exist.
         $channel->queue_declare(
-            $queue = self::RABBITMQ_QUEUE_NAME,
+            $queue = QueueName::CHAT_COLLECT_NAME,
             $passive = false,
             $durable = true,
             $exclusive = false,
@@ -67,7 +62,7 @@ class Worker
         $channel->basic_qos(null, 1, null);
 
         $channel->basic_consume(
-            $queue = self::RABBITMQ_QUEUE_NAME,
+            $queue = QueueName::CHAT_COLLECT_NAME,
             $consumer_tag = '',
             $no_local = false,
             $no_ack = false,

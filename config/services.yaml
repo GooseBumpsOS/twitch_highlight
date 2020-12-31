@@ -4,6 +4,11 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
+    rabbit_mq_credentials:
+        host: '109.248.59.124'
+        user: 'guest'
+        pass: 'guest'
+        port: '5672'
 
 services:
     # default configuration for services in *this* file
