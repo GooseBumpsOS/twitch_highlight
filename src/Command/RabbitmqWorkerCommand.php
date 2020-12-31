@@ -41,6 +41,7 @@ class RabbitmqWorkerCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+        $io->writeln('Start worker');
 
         $rabbitWorker = new Worker();
         $rabbitWorker->readMessage($this->parameterBag->get('rabbit_mq_credentials'), $io, $this->storageProvider);
