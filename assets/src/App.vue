@@ -19,12 +19,8 @@ export default {
           values: null,
         },
         highLiteOffset: {},
+        highLiteTime: [],
       },
-      data: [
-        {
-          values: [18, 40, 30, 35, 8, 52, 17, -4],
-        },
-      ],
     };
   },
   watch: {
@@ -53,6 +49,9 @@ export default {
         this.intervalId = setInterval(this.isReadyInterval, 5000, videoId);
       });
     },
+    getTwitchUrl(offset) {
+      return `https://www.twitch.tv/videos/688433658?t=${offset}s`;
+    },
     isReadyInterval(videoId) {
       let api = new Api();
       api.get(`/api/work/user/${videoId}`).then((resp) => {
@@ -60,6 +59,7 @@ export default {
               this.isAnalysisReady = true;
               this.analysisData = resp.data;
               this.analysisData.labels = [...Array(resp.data.chatActivity.values.length).keys()];
+              this.analysisData.highLiteTime = this.analysisData.highLiteOffset.map(this.makeTimeFromOffset);
             }
           },
       );
@@ -108,6 +108,17 @@ export default {
 
       <v-container v-if="isAnalysisReady">
 
+        <div class="text-center mt-4">
+          <v-btn
+              @click="isAnalysisReady = false; isShowStepper = true"
+              color="primary"
+              elevation="2"
+              large
+          >На главную
+          </v-btn>
+        </div>
+
+
         <v-row>
           <v-col>
             <graph
@@ -124,7 +135,7 @@ export default {
             <graph
                 id-graph="chatActivity"
                 :data-set="analysisData.chatActivity"
-                :labels="analysisData.labels"
+                :labels="analysisData.labels.map(makeTimeFromOffset)"
                 title="Активность чата"
             />
           </v-col>
@@ -136,30 +147,15 @@ export default {
               max-width="800"
               tile
           >
-            <v-list-item>
-              <v-list-item-content>
-                <v-list-item-title>Single-line item</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
 
-            <v-list-item two-line>
+            <v-list-item two-line v-for="(highlightOffset, index) in analysisData.highLiteOffset" :key="index">
               <v-list-item-content>
-                <v-list-item-title>Two-line item</v-list-item-title>
-                <v-list-item-subtitle>Secondary text</v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-
-            <v-list-item three-line>
-              <v-list-item-content>
-                <v-list-item-title>Three-line item</v-list-item-title>
-                <v-list-item-subtitle>
-                  Secondary line text Lorem ipsum dolor sit amet,
-                </v-list-item-subtitle>
-                <v-list-item-subtitle>
-                  consectetur adipiscing elit.
+                <v-list-item-title>Хайлайт на: {{ analysisData.highLiteTime[index] }}</v-list-item-title>
+                <v-list-item-subtitle><a target="_blank" :href="getTwitchUrl(highlightOffset)">Посмотреть на Twitch</a>
                 </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
+
           </v-card>
         </v-row>
       </v-container>
