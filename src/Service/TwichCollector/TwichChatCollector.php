@@ -45,7 +45,7 @@ class TwichChatCollector
     {
         $result = [];
 
-        $response = $this->makeRequest("https://api.twitch.tv/v5/videos/{$videoId}/comments", 'GET',
+        $response = $this->makeGetRequest("https://api.twitch.tv/v5/videos/{$videoId}/comments",
             ["content_offset_seconds" => "0"]);
 
         foreach ($response["comments"] as $chatMetadata) {
@@ -56,20 +56,13 @@ class TwichChatCollector
             $result[] = $twichChat;
         }
 
-        $prevOffset = 0;
         while (isset($response["_next"])) {
-            $response = $this->makeRequest("https://api.twitch.tv/v5/videos/{$videoId}/comments", 'GET',
+            $response = $this->makeGetRequest("https://api.twitch.tv/v5/videos/{$videoId}/comments",
                 ["cursor" => $response["_next"]]
             );
 
             foreach ($response["comments"] as $chatMetadata) {
                 $twichChat = new TwichChat();
-
-                if ($prevOffset > $chatMetadata["content_offset_seconds"]) {
-                    break 2;
-                }
-
-                $prevOffset = $chatMetadata["content_offset_seconds"];
 
                 $twichChat->message = $chatMetadata["message"]["body"];
                 $twichChat->offset = $chatMetadata["content_offset_seconds"];
@@ -82,7 +75,6 @@ class TwichChatCollector
 
     /**
      * @param string $url
-     * @param string $httpMethod
      * @param array $body
      * @return array
      * @throws ClientExceptionInterface
@@ -90,15 +82,13 @@ class TwichChatCollector
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      */
-    private function makeRequest(string $url, string $httpMethod, array $body = []): array
+    private function makeGetRequest(string $url, array $body = []): array
     {
         $client = HttpClient::create();
-        $response = $client->request($httpMethod, $url, [
-            'body' => $body,
+        $response = $client->request('GET', $url . '?' . http_build_query($body), [
             'headers' => [
                 'user-agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36',
                 'client-id' => 'kimne78kx3ncx6brgo4mv6wki5h1ko',
-                'content-encoding' => 'UTF-8',
                 'timeout' => 2.5
             ]
         ]);
