@@ -12,14 +12,9 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class ChatDictionary
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private $id;
 
     /**
+     * @ORM\Id()
      * @ORM\Column(type="integer")
      */
     private $videoId;
@@ -37,11 +32,6 @@ class ChatDictionary
     public function __construct()
     {
         $this->chats = new ArrayCollection();
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
     }
 
     public function getVideoId(): ?int

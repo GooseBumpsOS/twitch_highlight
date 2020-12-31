@@ -29,7 +29,7 @@ class Chat
 
     /**
      * @ORM\ManyToOne(targetEntity=ChatDictionary::class, inversedBy="chats")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, referencedColumnName="video_id")
      */
     private $videoId;
 
