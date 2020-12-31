@@ -95,7 +95,7 @@ export default {
 
         <v-btn
             color="primary"
-            @click="emit('complete-stepper', this.link, this.slider.val, this.keywords)"
+            @click="$emit('complete-stepper', link, slider.val, keywords)"
         >
           Покажи мне анализ
         </v-btn>

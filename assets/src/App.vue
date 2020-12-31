@@ -1,5 +1,6 @@
 <script>
 import Stepper from './Components/Stepper';
+import Api from './Service/Api';
 
 export default {
   name: 'App',
@@ -9,7 +10,14 @@ export default {
   },
   methods: {
     onComplete(link, volume, keywords) {
-
+      let api = new Api();
+      let videoId = link.match(/(?!videos\/)\d+(?!\/)/mg)[0];
+      api.post('/api/new-work/', {
+        videoId,
+        volume,
+        keywords,
+        "user": "user"
+      })
     },
   },
 };
