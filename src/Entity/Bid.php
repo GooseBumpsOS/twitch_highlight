@@ -4,9 +4,12 @@ namespace App\Entity;
 
 use App\Repository\BidRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\Table;
+use Doctrine\ORM\Mapping\Index;
 
 /**
  * @ORM\Entity(repositoryClass=BidRepository::class)
+ * @Table(name="bid",indexes={@Index(name="search_idx", columns={"user", "video_id"})})
  */
 class Bid
 {
