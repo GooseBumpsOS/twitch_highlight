@@ -55,7 +55,7 @@ class BidController extends AbstractController
         $result = $this->bidManager->getAnalysisResult((int)$videoId, $user);
 
         if (is_null($result)) {
-            return new JsonResponse('Анализ еще не готов', 204);
+            return $this->json(null, 204);
         }
 
         return $this->json($result);

@@ -10,6 +10,7 @@ export default {
     return {
       isShowStepper: true,
       isAnalysisReady: false,
+      intervalId: -1,
       analysisData: {
         chatActivity: {
           values: null,
@@ -25,6 +26,11 @@ export default {
         },
       ],
     };
+  },
+  watch: {
+    isAnalysisReady: function(newStatus, oldStatus) {
+      clearInterval(this.intervalId);
+    },
   },
   methods: {
     onComplete(link, volume, keywords) {
@@ -44,16 +50,17 @@ export default {
           text: 'Мы уже начали собирать данные по этому видео, обычно это занимает не больше 10 минут',
           duration: 8000,
         });
-        setInterval(this.isReadyInterval(videoId), 5000);
+        this.intervalId = setInterval(this.isReadyInterval, 5000, videoId);
       });
     },
     isReadyInterval(videoId) {
       let api = new Api();
       api.get(`/api/work/user/${videoId}`).then((resp) => {
-            this.isAnalysisReady = true;
-            this.analysisData = resp.data;
-            this.analysisData.labels = [...Array(resp.data.chatActivity.values.length).keys()];
-
+            if (resp.status === 200) {
+              this.isAnalysisReady = true;
+              this.analysisData = resp.data;
+              this.analysisData.labels = [...Array(resp.data.chatActivity.values.length).keys()];
+            }
           },
       );
     },
@@ -61,21 +68,21 @@ export default {
       let date = new Date(offset * 1000);
 
       let minutes = date.getMinutes();
-      if (minutes.length === 1){
+      if (minutes.length === 1) {
         minutes = '0' + minutes;
       }
 
       let seconds = date.getSeconds();
-      if (seconds.length === 1){
+      if (seconds.length === 1) {
         seconds = '0' + seconds;
       }
 
       let hours = date.getHours() - 3;
-      if (hours.length === 1){
+      if (hours.length === 1) {
         hours = '0' + hours;
       }
 
-      return hours + ':' + minutes+ ':' + seconds;
+      return hours + ':' + minutes + ':' + seconds;
     },
   },
 };
@@ -90,7 +97,17 @@ export default {
           @complete-stepper="onComplete"
       />
 
+      <div class="text-center mt-12">
+        <v-progress-circular
+            v-if="!isShowStepper && !isAnalysisReady"
+            :width="3"
+            color="green"
+            indeterminate
+        ></v-progress-circular>
+      </div>
+
       <v-container v-if="isAnalysisReady">
+
         <v-row>
           <v-col>
             <graph
@@ -111,6 +128,39 @@ export default {
                 title="Активность чата"
             />
           </v-col>
+        </v-row>
+
+        <v-row>
+          <v-card
+              class="mx-auto"
+              max-width="800"
+              tile
+          >
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title>Single-line item</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item two-line>
+              <v-list-item-content>
+                <v-list-item-title>Two-line item</v-list-item-title>
+                <v-list-item-subtitle>Secondary text</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item three-line>
+              <v-list-item-content>
+                <v-list-item-title>Three-line item</v-list-item-title>
+                <v-list-item-subtitle>
+                  Secondary line text Lorem ipsum dolor sit amet,
+                </v-list-item-subtitle>
+                <v-list-item-subtitle>
+                  consectetur adipiscing elit.
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+          </v-card>
         </v-row>
       </v-container>
 
