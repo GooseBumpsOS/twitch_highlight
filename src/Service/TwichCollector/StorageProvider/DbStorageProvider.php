@@ -49,4 +49,15 @@ class DbStorageProvider implements IStorageProvider
 
         $this->em->flush();
     }
+
+    /**
+     * @param int $videoId
+     * @return null|ChatDictionary[]
+     */
+    public function getChatData(int $videoId): ?array
+    {
+        return $this->em->getRepository(ChatDictionary::class)->findBy([
+            'videoId' => $videoId
+        ]);
+    }
 }

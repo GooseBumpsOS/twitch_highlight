@@ -13,4 +13,6 @@ interface IStorageProvider
      * @param TwichChat[] $twichChat
      */
     public function persistChatData(int $videoId, array $twichChat): void;
+
+    public function getChatData(int $videoId): ?array;
 }

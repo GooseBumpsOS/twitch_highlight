@@ -27,8 +27,10 @@ class TwichChatCollector
      */
     public function collect(int $videoId, IStorageProvider $storageProvider): void
     {
-        #TODO add check for data already exist
-        $storageProvider->persistChatData($videoId, $this->getMsgFromTwich($videoId));
+        $chats = $storageProvider->getChatData($videoId);
+        if (is_null($chats)) {
+            $storageProvider->persistChatData($videoId, $this->getMsgFromTwich($videoId));
+        }
     }
 
     /**
