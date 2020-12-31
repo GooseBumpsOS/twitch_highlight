@@ -15,14 +15,27 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Worker
 {
     /**
+     * @var array
+     */
+    private $credentials;
+
+    /**
+     * Worker constructor.
      * @param array $credentials
+     */
+    public function __construct(array $credentials)
+    {
+        $this->credentials = $credentials;
+    }
+
+    /**
      * @param OutputInterface $output
      * @param IStorageProvider $storageProvider
      * @throws ErrorException
      */
-    public function readMessage(array $credentials, OutputInterface $output, IStorageProvider $storageProvider): void
+    public function readMessage(OutputInterface $output, IStorageProvider $storageProvider): void
     {
-        $rabbitConnection = new RabbitMqConnectionService($credentials);
+        $rabbitConnection = new RabbitMqConnectionService($this->credentials);
         $channel = $rabbitConnection->openConnection()->getChannel();
 
         $callback = function ($msg) use ($output, $storageProvider) {

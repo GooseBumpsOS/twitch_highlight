@@ -32,5 +32,12 @@ services:
         resource: '../src/Controller/'
         tags: ['controller.service_arguments']
 
+    App\Service\RabbitMQ\Publisher:
+        class: App\Service\RabbitMQ\Publisher
+        arguments: ['%rabbit_mq_credentials%']
+
+    App\Service\RabbitMQ\Worker:
+        class: App\Service\RabbitMQ\Worker
+        arguments: [ '%rabbit_mq_credentials%' ]
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

@@ -10,9 +10,26 @@ use PhpAmqpLib\Message\AMQPMessage;
 
 class Publisher
 {
-    public function publishMessage(array $credentials, array $data): void
+    /**
+     * @var array
+     */
+    private $credentials;
+
+    /**
+     * Publisher constructor.
+     * @param array $credentials
+     */
+    public function __construct(array $credentials)
     {
-        $rabbitConnection = new RabbitMqConnectionService($credentials);
+        $this->credentials = $credentials;
+    }
+
+    /**
+     * @param array $data
+     */
+    public function publishMessage(array $data): void
+    {
+        $rabbitConnection = new RabbitMqConnectionService($this->credentials);
         $channel = $rabbitConnection->openConnection()->getChannel();
 
         $channel->queue_declare(

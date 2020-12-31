@@ -8,7 +8,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class RabbitmqWorkerCommand extends Command
 {
@@ -18,18 +17,24 @@ class RabbitmqWorkerCommand extends Command
      */
     private $storageProvider;
     /**
-     * @var ParameterBagInterface
+     * @var Worker
      */
-    private $parameterBag;
+    private $worker;
 
+    /**
+     * RabbitmqWorkerCommand constructor.
+     * @param string|null $name
+     * @param DbStorageProvider $storageProvider
+     * @param Worker $worker
+     */
     public function __construct(
         string $name = null,
         DbStorageProvider $storageProvider,
-        ParameterBagInterface $parameterBag
+        Worker $worker
     ) {
         parent::__construct($name);
         $this->storageProvider = $storageProvider;
-        $this->parameterBag = $parameterBag;
+        $this->worker = $worker;
     }
 
     protected function configure()
@@ -43,8 +48,7 @@ class RabbitmqWorkerCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $io->writeln('Start worker');
 
-        $rabbitWorker = new Worker();
-        $rabbitWorker->readMessage($this->parameterBag->get('rabbit_mq_credentials'), $io, $this->storageProvider);
+        $this->worker->readMessage($io, $this->storageProvider);
 
         return Command::SUCCESS;
     }
