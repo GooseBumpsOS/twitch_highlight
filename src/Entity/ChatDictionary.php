@@ -24,6 +24,7 @@ class ChatDictionary
      */
     private $time;
 
+    #TODO set fetch mode
     /**
      * @ORM\OneToMany(targetEntity=Chat::class, mappedBy="videoId", orphanRemoval=true)
      */

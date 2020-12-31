@@ -76,21 +76,23 @@ class BidManager
      */
     public function getAnalysisResult(int $videoId, string $user): ?AnalyticsResult
     {
-        /** @var Bid $result */
-        $result = $this->entityManager->getRepository(Bid::class)->findOneBy([
-            'videoId' => $videoId,
-            'user' => $user
-        ], ['id' => 'DESC']);
+        $bid = null;
+        /** @var ChatDictionary $chat */
+        $chat = $this->entityManager->getRepository(ChatDictionary::class)->findOneBy([
+            'videoId' => $videoId
+        ]);
 
-        if (!is_null($result)) {
-            /** @var ChatDictionary $chat */
-            $chat = $this->entityManager->getRepository(ChatDictionary::class)->findOneBy([
-                'videoId' => $videoId
-            ]);
+        if (!is_null($chat)) {
+            /** @var Bid $bid */
+            $bid = $this->entityManager->getRepository(Bid::class)->findOneBy([
+                'videoId' => $videoId,
+                'user' => $user
+            ], ['id' => 'DESC']);
 
-            $result = $this->analytic->makeAnalytics($result->getCoeff(), $result->getKeywords(), $chat->getChats()->getValues());
+            $bid = $this->analytic->makeAnalytics($bid->getCoeff(), $bid->getKeywords(),
+                $chat->getChats()->getValues());
         }
 
-        return $result;
+        return $bid;
     }
 }

@@ -46,6 +46,8 @@ class BidController extends AbstractController
 
     /**
      * @Route("/api/work/{user}/{videoId}", name="get_analysise", methods={"GET"})
+     * @param string $user
+     * @param string $videoId
      * @return JsonResponse
      */
     public function getAnalysisResult(string $user, string $videoId): JsonResponse
