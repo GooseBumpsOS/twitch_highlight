@@ -9,7 +9,8 @@ use App\Service\TwichCollector\Dto\TwichChat;
 interface IStorageProvider
 {
     /**
+     * @param int videoId
      * @param TwichChat[] $twichChat
      */
-    public function persistChatData(array $twichChat): void;
+    public function persistChatData(int $videoId, array $twichChat): void;
 }

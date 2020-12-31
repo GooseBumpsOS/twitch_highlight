@@ -27,7 +27,7 @@ class TwichChatCollector
      */
     public function collect(int $videoId, IStorageProvider $storageProvider): void
     {
-        $storageProvider->persistChatData($this->getMsgFromTwich($videoId));
+        $storageProvider->persistChatData($videoId, $this->getMsgFromTwich($videoId));
     }
 
     /**
@@ -91,7 +91,7 @@ class TwichChatCollector
             ]
         ]);
 
-        $result = json_encode($response->getContent());
+        $result = json_decode($response->getContent(), true);
         if (!is_array($result)) {
             throw new LogicException('Smth wrong with twich chat data parsing, here is response: ' . $response->getContent(),
                 500);
