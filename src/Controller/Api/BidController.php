@@ -28,7 +28,7 @@ class BidController extends AbstractController
     }
 
     /**
-     * @Route("/api/new-work/", name="send_to_queue", methods={"POST"})
+     * @Route("/api/work/", name="send_to_queue", methods={"POST"})
      * @param Request $request
      * @return JsonResponse
      */
@@ -42,5 +42,20 @@ class BidController extends AbstractController
         );
 
         return $this->json('ok');
+    }
+
+    /**
+     * @Route("/api/work/{user}/{videoId}", name="get_analysise", methods={"GET"})
+     * @return JsonResponse
+     */
+    public function getAnalysisResult(string $user, string $videoId): JsonResponse
+    {
+        $result = $this->bidManager->getAnalysisResult((int)$videoId, $user);
+
+        if (is_null($result)) {
+            return new JsonResponse('Анализ еще не готов', 204);
+        }
+
+        return $this->json($result);
     }
 }
