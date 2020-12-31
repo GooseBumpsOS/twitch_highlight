@@ -10,7 +10,6 @@ use App\Service\TwichCollector\StorageProvider\IStorageProvider;
 use App\Service\TwichCollector\TwichChatCollector;
 use DateTime;
 use ErrorException;
-use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Worker
@@ -23,27 +22,8 @@ class Worker
      */
     public function readMessage(array $credentials, OutputInterface $output, IStorageProvider $storageProvider): void
     {
-        $connection = new AMQPStreamConnection(
-            $credentials['host'],
-            $credentials['port'],
-            $credentials['user'],
-            $credentials['pass']
-        );
-
-        $channel = $connection->channel();
-
-# Create the queue if it doesnt already exist.
-        $channel->queue_declare(
-            $queue = QueueName::CHAT_COLLECT_NAME,
-            $passive = false,
-            $durable = true,
-            $exclusive = false,
-            $auto_delete = false,
-            $nowait = false,
-            $arguments = null,
-            $ticket = null
-        );
-
+        $rabbitConnection = new RabbitMqConnectionService($credentials);
+        $channel = $rabbitConnection->openConnection()->getChannel();
 
         $callback = function ($msg) use ($output, $storageProvider) {
             $job = json_decode($msg->body, $assocForm = true);
@@ -75,8 +55,7 @@ class Worker
             $channel->wait();
         }
 
-        $channel->close();
-        $connection->close();
+        $rabbitConnection->closeConnection();
     }
 
 }
