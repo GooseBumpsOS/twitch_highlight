@@ -19,6 +19,9 @@ class AnalyticsResult implements JsonSerializable
     /** @var int[] show how manny keywords was per minute */
     public $chatAnalyseByCriteria;
 
+    /** @var int */
+    public $videoId;
+
     public function jsonSerialize(): array
     {
         return [
@@ -30,7 +33,8 @@ class AnalyticsResult implements JsonSerializable
             ,
             'chatAnalyseByCriteria' => [
                 'values' => $this->chatAnalyseByCriteria
-            ]
+            ],
+            'videoId' => $this->videoId
         ];
     }
 }

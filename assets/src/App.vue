@@ -12,6 +12,7 @@ export default {
       isAnalysisReady: false,
       intervalId: -1,
       analysisData: {
+        videoId: null,
         chatActivity: {
           values: null,
         },
@@ -50,7 +51,7 @@ export default {
       });
     },
     getTwitchUrl(offset) {
-      return `https://www.twitch.tv/videos/688433658?t=${offset}s`;
+      return `https://www.twitch.tv/videos/${this.analysisData.videoId}?t=${offset}s`;
     },
     isReadyInterval(videoId) {
       let api = new Api();
@@ -67,17 +68,17 @@ export default {
     makeTimeFromOffset(offset) {
       let date = new Date(offset * 1000);
 
-      let minutes = date.getMinutes();
+      let minutes = date.getMinutes().toString();
       if (minutes.length === 1) {
         minutes = '0' + minutes;
       }
 
-      let seconds = date.getSeconds();
+      let seconds = date.getSeconds().toString();
       if (seconds.length === 1) {
         seconds = '0' + seconds;
       }
 
-      let hours = date.getHours() - 3;
+      let hours = (date.getHours() - 3).toString();
       if (hours.length === 1) {
         hours = '0' + hours;
       }
@@ -124,8 +125,8 @@ export default {
             <graph
                 id-graph="highlight"
                 :data-set="analysisData.chatAnalyseByCriteria"
-                :labels="analysisData.labels.map(makeTimeFromOffset)"
-                title="Хайлайты"
+                :labels="analysisData.labels.map((val) => {return val * 60}).map(makeTimeFromOffset)"
+                title="Активность по ключевым словам(хайлайты)"
             />
           </v-col>
         </v-row>
@@ -135,7 +136,7 @@ export default {
             <graph
                 id-graph="chatActivity"
                 :data-set="analysisData.chatActivity"
-                :labels="analysisData.labels.map(makeTimeFromOffset)"
+                :labels="analysisData.labels.map((val) => {return val * 60}).map(makeTimeFromOffset)"
                 title="Активность чата"
             />
           </v-col>

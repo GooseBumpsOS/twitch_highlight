@@ -4,6 +4,7 @@ export default {
   data() {
     return {
       slider: {label: 'Коэффициент', val: 1.2, color: 'red'},
+      loading: false,
       keywords: 'LUL, ха, ах, ъх, бан, kappa, biblethump, kek, lol, лол',
       e1: 1,
       link: '',
@@ -95,7 +96,8 @@ export default {
 
         <v-btn
             color="primary"
-            @click="$emit('complete-stepper', link, slider.val, keywords)"
+            :loading="loading"
+            @click="$emit('complete-stepper', link, slider.val, keywords); loading = true"
         >
           Покажи мне анализ
         </v-btn>

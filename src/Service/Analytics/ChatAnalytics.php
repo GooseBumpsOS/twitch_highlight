@@ -28,16 +28,16 @@ class ChatAnalytics
         }, $keywordsSep);
 
         $chatSerial = [];
-        $chatTmp = 0;
+        $words = 0;
         $humorCount = [];
-        $tmp = 0;
+        $keywordsPerMinute = 0;
         $prevMin = 0;
 
         foreach ($chat as $chatMsg) {
             if (intdiv($chatMsg->getTimeOffset(), 60) === $prevMin) {
-                $chatTmp++;
+                $words++;
                 if ($this->isInText($chatMsg->getMsg(), $keywordsSep)) {
-                    $tmp++;
+                    $keywordsPerMinute++;
                 }
             } else {
                 for ($i = 0; $i < intdiv($chatMsg->getTimeOffset(), 60) - $prevMin - 1; $i++) {
@@ -45,10 +45,10 @@ class ChatAnalytics
                     $chatSerial[] = 0;
                 }
 
-                $humorCount[] = $tmp;
-                $chatSerial[] = $chatTmp;
-                $tmp = 0;
-                $chatTmp = 0;
+                $humorCount[] = $keywordsPerMinute;
+                $chatSerial[] = $words;
+                $keywordsPerMinute = 0;
+                $words = 0;
                 $prevMin = intdiv($chatMsg->getTimeOffset(), 60);
             }
         }
@@ -56,9 +56,9 @@ class ChatAnalytics
         $percentDiff = $volume;
         $highLights = [];
 
-        foreach ($humorCount as $key => $chatMsg) {
-            if (($key < count($humorCount) - 2) && $humorCount[$key] * $percentDiff < $humorCount[$key + 1] && $humorCount[$key + 1] * $percentDiff >= $humorCount[$key + 2] && $humorCount[$key] !== 0) {
-                $highLights[] = ($key + 1);
+        foreach ($humorCount as $minute => $chatMsg) {
+            if (($minute < count($humorCount) - 2) && $humorCount[$minute] * $percentDiff < $humorCount[$minute + 1] && $humorCount[$minute + 1] * $percentDiff >= $humorCount[$minute + 2] && $humorCount[$minute] !== 0) {
+                $highLights[] = ($minute + 1) * 60;
             }
         }
 

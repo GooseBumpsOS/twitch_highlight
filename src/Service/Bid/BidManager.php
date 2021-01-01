@@ -91,6 +91,7 @@ class BidManager
 
             $bid = $this->analytic->makeAnalytics($bid->getCoeff(), $bid->getKeywords(),
                 $chat->getChats()->getValues());
+            $bid->videoId = $videoId;
         }
 
         return $bid;
