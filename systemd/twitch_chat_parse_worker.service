@@ -1,0 +1,29 @@
+[Unit]
+Description=service for rabbitMQ wich coollect data from Twich chat
+After=syslog.target
+After=network.target
+After=apache2.service
+After=mysql.service
+
+[Service]
+Type=simple
+PIDFile=/var/www/twitch/twitch_chat_parse_worker.pid
+WorkingDirectory=/var/www/twitch
+
+RestartSec=1
+Restart=always
+
+StandardOutput=append:/var/www/twitch/var/log/twitch_chat_parse_worker.output.log
+StandardError=append:/var/www/twitch/var/log/twitch_chat_parse_worker.error.log
+
+User=georgy
+Group=georgy
+
+OOMScoreAdjust=-100
+
+ExecStart=/usr/bin/env php bin/console rabbitmq:worker
+TimeoutSec=300
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
