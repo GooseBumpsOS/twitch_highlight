@@ -14,7 +14,7 @@ class Api {
             group: 'alert',
             title: 'Error',
             type: 'error',
-            text: error.response.data.message,
+            text: this._getErrorMsg(error),
           });
         },
     );
@@ -31,12 +31,21 @@ class Api {
             group: 'alert',
             title: 'Error',
             type: 'error',
-            text: error.response.data.message,
+            text: this._getErrorMsg(error),
           });
 
           throw new Error('Something wrong with request');
         },
     );
+  }
+
+  _getErrorMsg(error) {
+    let errorMsg = 'Упсс. Похоже что-то не так.';
+    if (error.response.data !== null) {
+      errorMsg = error.response.data.message;
+    }
+
+    return errorMsg;
   }
 
 }
