@@ -1,4 +1,6 @@
 <script>
+import Api from '../Service/Api';
+
 export default {
   name: 'Stepper',
   data() {
@@ -6,7 +8,7 @@ export default {
       slider: {label: 'Коэффициент', val: 1.2, color: 'red'},
       loading: false,
       keywords: 'LUL, ха, ах, ъх, бан, kappa, biblethump, kek, lol, лол',
-      e1: 1,
+      currentStep: 1,
       link: '',
       linkRule: [
         v => !!v || 'Ссылка обязательна',
@@ -15,14 +17,36 @@ export default {
       ],
     };
   },
+  methods: {
+    validateVideo() {
+      let api = new Api();
+      let videoId = this.link.match(/(?!videos\/)\d+(?!\/)/mg)[0];
+      this.loading = true
+
+      api.get(`/api/validate/video_exist/${videoId}`).then((resp) => {
+        if (resp.data === false){
+          this.$notify({
+            group: 'alert',
+            title: 'Ошибка ссылки',
+            type: 'warn',
+            text: 'Похоже, что мы не можем получить это видео.',
+          });
+        } else {
+          this.currentStep = 2;
+        }
+      }).finally(() => {
+        this.loading = false;
+      })
+    },
+  },
 };
 </script>
 
 <template>
-  <v-stepper v-model="e1">
+  <v-stepper v-model="currentStep">
     <v-stepper-header>
       <v-stepper-step
-          :complete="e1 > 1"
+          :complete="currentStep > 1"
           step="1"
       >
         Какое видео?
@@ -31,7 +55,7 @@ export default {
       <v-divider></v-divider>
 
       <v-stepper-step
-          :complete="e1 > 2"
+          :complete="currentStep > 2"
           step="2"
       >
         Какой коэффициент роста?
@@ -57,7 +81,8 @@ export default {
         <v-btn
             class="mt-2"
             color="primary"
-            @click="e1 = 2"
+            :loading="loading"
+            @click="validateVideo"
         >
           Далее
         </v-btn>
@@ -79,13 +104,13 @@ export default {
         <v-btn
             class="mt-2"
             color="primary"
-            @click="e1 = 3"
+            @click="currentStep = 3"
         >
           Далее
         </v-btn>
 
         <v-btn text
-               @click="e1 = 1"
+               @click="currentStep = 1"
         >
           Назад
         </v-btn>
@@ -103,7 +128,7 @@ export default {
         </v-btn>
 
         <v-btn text
-               @click="e1 = 2"
+               @click="currentStep = 2"
         >
           Назад
         </v-btn>

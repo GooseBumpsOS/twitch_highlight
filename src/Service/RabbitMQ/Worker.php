@@ -11,6 +11,7 @@ use App\Service\TwichCollector\TwichChatCollector;
 use DateTime;
 use ErrorException;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class Worker
 {
@@ -44,7 +45,15 @@ class Worker
             $output->writeln("Work info: videoId is {$job['videoId']}, from user {$job['user']}");
 
             $twichChatCollector = new TwichChatCollector();
-            $twichChatCollector->collect($job['videoId'], $storageProvider);
+
+            try {
+                $twichChatCollector->collect($job['videoId'], $storageProvider);
+            } catch (HttpException $exception) {
+                if ($exception->getStatusCode() === 404) {
+                    $output->writeln('Can\'t get this video');
+                    $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
+                }
+            }
 
             $output->writeln('End new work at ' . (new DateTime())->format('d/m/Y H:i:s'));
             $output->writeln('-----------');
