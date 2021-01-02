@@ -112,9 +112,10 @@ class ChatAnalytics
     {
         $result = false;
 
-        $text = strtolower($text);
         foreach ($keywords as $keyword) {
-            $result = $result || in_array(strtolower($keyword), preg_split('/[,\s\.\;]/m', $text), true);
+            if (!is_bool(stripos($text, $keyword))){
+                $result = true;
+            }
         }
 
         return $result;
