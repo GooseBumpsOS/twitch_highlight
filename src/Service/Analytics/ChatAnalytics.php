@@ -128,7 +128,7 @@ class ChatAnalytics
     private function getHighlightOffsets(array $keywordsPerMinutes, float $volume): array
     {
         $result = [];
-        $lastMinute = count($keywordsPerMinutes);
+        $lastMinute = count($keywordsPerMinutes) - 1;
         foreach ($keywordsPerMinutes as $minute => $keywordsPerMinute) {
             if ($minute !== 0 && $minute !== $lastMinute &&
                 $keywordsPerMinutes[$minute - 1] * $volume < $keywordsPerMinutes[$minute] && $keywordsPerMinutes[$minute + 1] * $volume < $keywordsPerMinutes[$minute]) {
