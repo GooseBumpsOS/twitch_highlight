@@ -4,18 +4,20 @@ After=syslog.target
 After=network.target
 After=apache2.service
 After=mysql.service
-StartLimitAction=/bin/bash /var/www/twitch/fatal_error_action.sh "Systemd rabbitMQ worker faild to restart for 5 times"
+StartLimitBurst=5
+StartLimitIntervalSec=10
 
 [Service]
 Type=simple
 PIDFile=/var/www/twitch/twitch_chat_parse_worker.pid
 WorkingDirectory=/var/www/twitch
 
-RestartSec=1
+RestartSec=5
 Restart=always
 
 StandardOutput=append:/var/www/twitch/var/log/twitch_chat_parse_worker.output.log
 StandardError=append:/var/www/twitch/var/log/twitch_chat_parse_worker.error.log
+ExecStopPost=/bin/bash /var/www/twitch/bin/fatal_error_action.sh 'Systemd rabbitMQ worker faild to restart'
 
 User=georgy
 Group=georgy
