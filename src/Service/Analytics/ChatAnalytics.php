@@ -10,6 +10,8 @@ use App\Service\Analytics\Dto\AnalyticsResult;
 
 class ChatAnalytics
 {
+    private const SECONDS_IN_MINUTE = 60;
+
     /**
      * @param float $volume this show how graph should change(strong of changes)
      * @param string $keywords
@@ -20,68 +22,120 @@ class ChatAnalytics
     {
         $result = new AnalyticsResult();
 
-        $keywords = preg_replace("/[,;]/m", "|", $keywords);
-        $keywordsSep = explode("|", $keywords);
+        $keywordsSep = preg_split("/[,;]/m", $keywords);
 
         $keywordsSep = array_map(static function ($item) {
             return trim($item);
         }, $keywordsSep);
 
-        $chatSerial = [];
-        $words = 0;
-        $humorCount = [];
-        $keywordsPerMinute = 0;
-        $prevMin = 0;
+        $segregatedComments = $this->segregateCommentsPerMinute($chat);
 
-        foreach ($chat as $chatMsg) {
-            if (intdiv($chatMsg->getTimeOffset(), 60) === $prevMin) {
-                $words++;
-                if ($this->isInText($chatMsg->getMsg(), $keywordsSep)) {
-                    $keywordsPerMinute++;
-                }
-            } else {
-                for ($i = 0; $i < intdiv($chatMsg->getTimeOffset(), 60) - $prevMin - 1; $i++) {
-                    $humorCount[] = 0;
-                    $chatSerial[] = 0;
-                }
+        $result->chatActivity = $this->getCountCommentsPerMinute($segregatedComments);
 
-                $humorCount[] = $keywordsPerMinute;
-                $chatSerial[] = $words;
-                $keywordsPerMinute = 0;
-                $words = 0;
-                $prevMin = intdiv($chatMsg->getTimeOffset(), 60);
+        $result->chatAnalyseByCriteria = $this->countKeywordsPerMinutes($segregatedComments, $keywordsSep);
+
+        $result->highLiteOffsets = $this->getHighlightOffsets($result->chatAnalyseByCriteria, $volume);
+
+        return $result;
+    }
+
+    /**
+     * @param Chat[] $chat
+     * @return array
+     */
+    private function segregateCommentsPerMinute(array $chat): array
+    {
+        $offsetToMin = static function (int $offset) {
+            return intdiv($offset, self::SECONDS_IN_MINUTE);
+        };
+
+        $result = [];
+        $currentMin = 0;
+        foreach ($chat as $chatItem) {
+            if ($currentMin + 1 === $offsetToMin($chatItem->getTimeOffset())) {
+                $currentMin++;
+            } elseif ($offsetToMin($chatItem->getTimeOffset()) > $currentMin + 1) {
+                $nextMin = $offsetToMin($chatItem->getTimeOffset());
+                foreach (range($currentMin, $nextMin) as $min) {
+                    $result[$min] = [];
+                }
+                $currentMin = $nextMin;
             }
+
+            $result[$currentMin][] = $chatItem->getMsg();
         }
 
-        $percentDiff = $volume;
-        $highLights = [];
+        return $result;
+    }
 
-        foreach ($humorCount as $minute => $chatMsg) {
-            if (($minute < count($humorCount) - 2) && $humorCount[$minute] * $percentDiff < $humorCount[$minute + 1] && $humorCount[$minute + 1] * $percentDiff >= $humorCount[$minute + 2] && $humorCount[$minute] !== 0) {
-                $highLights[] = ($minute + 1) * 60;
-            }
+    /**
+     * @param array $segregatedComments
+     * @return array
+     */
+    private function getCountCommentsPerMinute(array $segregatedComments): array
+    {
+        $result = array_fill(0, count($segregatedComments), 0);
+
+        foreach ($segregatedComments as $minute => $commentsPerMinute) {
+            $result[$minute] = count($commentsPerMinute);
         }
 
-        $result->chatActivity = $chatSerial;
-        $result->chatAnalyseByCriteria = $humorCount;
-        $result->highLiteOffset = $highLights;
+        return $result;
+    }
+
+    /**
+     * @param array $segregatedComments
+     * @param array $keywords
+     * @return array
+     */
+    private function countKeywordsPerMinutes(array $segregatedComments, array $keywords): array
+    {
+        $result = array_fill(0, count($segregatedComments), 0);
+
+        foreach ($segregatedComments as $currentMinute => $commentPerMinute) {
+            foreach ($commentPerMinute as $comment) {
+                if ($this->isInText($comment, $keywords)) {
+                    $result[$currentMinute]++;
+                }
+            }
+        }
 
         return $result;
     }
 
     /**
      * @param string $text
-     * @param array $find
+     * @param array $keywords
      * @return bool
      */
-    private function isInText(string $text, array $find): bool
+    private function isInText(string $text, array $keywords): bool
     {
-        foreach ($find as $item) {
-            if (stripos(strtolower($text), strtolower($item)) !== false) {
-                return true;
+        $result = false;
+
+        $text = strtolower($text);
+        foreach ($keywords as $keyword) {
+            $result = $result || in_array(strtolower($keyword), preg_split('/[,\s\.\;]/m', $text), true);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array $keywordsPerMinutes
+     * @param float $volume
+     * @return array
+     */
+    private function getHighlightOffsets(array $keywordsPerMinutes, float $volume): array
+    {
+        $result = [];
+        $lastMinute = count($keywordsPerMinutes);
+        foreach ($keywordsPerMinutes as $minute => $keywordsPerMinute) {
+            if ($minute !== 0 && $minute !== $lastMinute &&
+                $keywordsPerMinutes[$minute - 1] * $volume < $keywordsPerMinutes[$minute] && $keywordsPerMinutes[$minute + 1] * $volume < $keywordsPerMinutes[$minute]) {
+                $result[] = $minute * self::SECONDS_IN_MINUTE;
             }
         }
 
-        return false;
+        return $result;
     }
 }

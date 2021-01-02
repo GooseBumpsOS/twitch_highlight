@@ -14,7 +14,7 @@ class AnalyticsResult implements JsonSerializable
     public $chatActivity;
 
     /** @var int[] */
-    public $highLiteOffset;
+    public $highLiteOffsets;
 
     /** @var int[] show how manny keywords was per minute */
     public $chatAnalyseByCriteria;
@@ -29,7 +29,7 @@ class AnalyticsResult implements JsonSerializable
                 'values' => $this->chatActivity
             ],
             'highLiteOffset' =>
-                $this->highLiteOffset
+                $this->highLiteOffsets
             ,
             'chatAnalyseByCriteria' => [
                 'values' => $this->chatAnalyseByCriteria
