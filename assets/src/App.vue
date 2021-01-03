@@ -34,6 +34,23 @@ export default {
     },
   },
   methods: {
+    createMessage(msg, emoticons) {
+      let result = msg;
+
+      if (emoticons !== null) {
+        let finds = [];
+        emoticons.forEach((currentValue) => {
+          finds.push(result.slice(currentValue.begin, currentValue.end + 1));
+        });
+
+        finds.forEach((currentValue, index) => {
+          result = result.replace(currentValue,
+              `<img src='https://static-cdn.jtvnw.net/emoticons/v2/${emoticons[index]._id}/default/light/1.0'>`);
+        });
+      }
+
+      return result;
+    },
     getChatMessages() {
       let api = new Api();
       this.messages.isLoading = true;
@@ -205,8 +222,7 @@ export default {
                     </v-list-item-action>
 
                     <v-list-item-content>
-                      <v-list-item-title>
-                        {{ item }}
+                      <v-list-item-title v-html="createMessage(item, messages.data.emoticons[index])">
                       </v-list-item-title>
                     </v-list-item-content>
 

@@ -83,7 +83,7 @@ class TwichRequesterService
      * @throws ServerExceptionInterface
      * @throws TransportExceptionInterface
      */
-    public function getMsgFromTwich(int $videoId): array
+    public function getMsgFromTwitch(int $videoId): array
     {
         $result = [];
 
@@ -91,11 +91,7 @@ class TwichRequesterService
             ["content_offset_seconds" => "0"]);
 
         foreach ($response["comments"] as $chatMetadata) {
-            $twichChat = new TwichChat();
-
-            $twichChat->message = $chatMetadata["message"]["body"];
-            $twichChat->offset = $chatMetadata["content_offset_seconds"];
-            $result[] = $twichChat;
+            $result[] = $this->deserialize($chatMetadata);
         }
 
         while (isset($response["_next"])) {
@@ -104,14 +100,27 @@ class TwichRequesterService
             );
 
             foreach ($response["comments"] as $chatMetadata) {
-                $twichChat = new TwichChat();
-
-                $twichChat->message = $chatMetadata["message"]["body"];
-                $twichChat->offset = $chatMetadata["content_offset_seconds"];
-                $result[] = $twichChat;
+                $result[] = $this->deserialize($chatMetadata);
             }
         }
 
         return $result;
+    }
+
+    /**
+     * @param array $chatMetadata
+     * @return TwichChat
+     */
+    private function deserialize(array $chatMetadata): TwichChat
+    {
+        $twitchChat = new TwichChat();
+
+        $twitchChat->message = $chatMetadata["message"]["body"];
+        $twitchChat->offset = $chatMetadata["content_offset_seconds"];
+        if (isset($chatMetadata["message"]["emoticons"])) {
+            $twitchChat->emoticon = $chatMetadata["message"]["emoticons"];
+        }
+
+        return $twitchChat;
     }
 }

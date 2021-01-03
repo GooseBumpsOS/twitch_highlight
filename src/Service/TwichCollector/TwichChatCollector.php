@@ -26,7 +26,7 @@ class TwichChatCollector
     {
         $chats = $storageProvider->getChatData($videoId);
         if (is_null($chats)) {
-            $storageProvider->persistChatData($videoId, (new TwichRequesterService())->getMsgFromTwich($videoId));
+            $storageProvider->persistChatData($videoId, (new TwichRequesterService())->getMsgFromTwitch($videoId));
         }
     }
 }

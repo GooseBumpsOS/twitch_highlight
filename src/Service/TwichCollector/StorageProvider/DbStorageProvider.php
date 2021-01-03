@@ -43,6 +43,7 @@ class DbStorageProvider implements IStorageProvider
             $chat = new Chat();
             $chat->setVideoId($chatDic);
             $chat->setMsg($msg->message);
+            $chat->setEmoticon($msg->emoticon);
             $chat->setTimeOffset((int)$msg->offset);
             $this->em->persist($chat);
         }

@@ -31,6 +31,7 @@ class ChatController extends AbstractController
             foreach ($chatDic->getChats()->getValues() as $chatItem) {
                 $result['msg'][] = $chatItem->getMsg();
                 $result['offset'][] = $chatItem->getTimeOffset();
+                $result['emoticons'][] = $chatItem->getEmoticon();
             }
         }
 

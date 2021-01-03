@@ -33,6 +33,11 @@ class Chat
      */
     private $videoId;
 
+    /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private $emoticon = [];
+
     public function getId(): ?int
     {
         return $this->id;
@@ -70,6 +75,18 @@ class Chat
     public function setVideoId(?ChatDictionary $videoId): self
     {
         $this->videoId = $videoId;
+
+        return $this;
+    }
+
+    public function getEmoticon(): ?array
+    {
+        return $this->emoticon;
+    }
+
+    public function setEmoticon(?array $emoticon): self
+    {
+        $this->emoticon = $emoticon;
 
         return $this;
     }
