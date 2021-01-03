@@ -3,12 +3,8 @@
 
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
-parameters:
-    rabbit_mq_credentials:
-        host: '109.248.59.124'
-        user: 'guest'
-        pass: 'guest'
-        port: '5672'
+imports:
+    - { resource: 'credentials.yaml' }
 
 services:
     # default configuration for services in *this* file
@@ -39,6 +35,9 @@ services:
     App\Service\RabbitMQ\Worker:
         class: App\Service\RabbitMQ\Worker
         arguments: [ '%rabbit_mq_credentials%' ]
+
+    App\Command\FatalErrorNotificationCommand:
+        arguments: [ '%telegram_bot%' ]
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 

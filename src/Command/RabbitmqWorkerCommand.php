@@ -23,16 +23,14 @@ class RabbitmqWorkerCommand extends Command
 
     /**
      * RabbitmqWorkerCommand constructor.
-     * @param string|null $name
      * @param DbStorageProvider $storageProvider
      * @param Worker $worker
      */
     public function __construct(
-        string $name = null,
         DbStorageProvider $storageProvider,
         Worker $worker
     ) {
-        parent::__construct($name);
+        parent::__construct();
         $this->storageProvider = $storageProvider;
         $this->worker = $worker;
     }
@@ -40,7 +38,7 @@ class RabbitmqWorkerCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription('This command call for RabbitMQ worker');
+            ->setDescription('This command call for RabbitMQ worker which collect and processes data from queue');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

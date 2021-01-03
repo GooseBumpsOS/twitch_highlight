@@ -17,7 +17,7 @@ Restart=always
 
 StandardOutput=append:/var/www/twitch/var/log/twitch_chat_parse_worker.output.log
 StandardError=append:/var/www/twitch/var/log/twitch_chat_parse_worker.error.log
-ExecStopPost=/bin/bash /var/www/twitch/bin/fatal_error_action.sh 'Systemd rabbitMQ worker faild to restart'
+ExecStopPost=/usr/bin/env php bin/console notification:telegram 'Systemd rabbitMQ worker faild to restart'
 
 User=georgy
 Group=georgy
