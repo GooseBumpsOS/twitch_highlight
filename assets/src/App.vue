@@ -10,6 +10,10 @@ export default {
     return {
       isShowStepper: true,
       isAnalysisReady: false,
+      messages: {
+        isLoading: false,
+        data: [],
+      },
       intervalId: -1,
       analysisData: {
         videoId: null,
@@ -30,6 +34,15 @@ export default {
     },
   },
   methods: {
+    getChatMessages() {
+      let api = new Api();
+      this.messages.isLoading = true;
+      api.get(`/api/chat/${this.analysisData.videoId}`).then((resp) => {
+        this.messages.data = resp.data;
+      }).finally(() => {
+        this.messages.isLoading = false;
+      });
+    },
     onComplete(link, volume, keywords) {
       let api = new Api();
       let videoId = link.match(/(?!videos\/)\d+(?!\/)/mg)[0];
@@ -143,6 +156,71 @@ export default {
         </v-row>
 
         <v-row>
+          <v-col>
+            <v-responsive
+                max-width="600"
+                class="mx-auto mb-4"
+            >
+              <v-row>
+                <v-col>
+                  <v-btn
+                      v-if="messages.data.length === 0"
+                      @click="getChatMessages"
+                      :loading="messages.isLoading"
+                  >
+                    Получить сообщения чата
+                  </v-btn>
+                </v-col>
+
+                <v-col>
+                  <v-btn>
+                    Скачать чат(CSV)
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </v-responsive>
+
+            <v-card
+                v-show="messages.data.length !== 0"
+                elevation="16"
+                max-width="600"
+                class="mx-auto"
+            >
+              <v-virtual-scroll
+                  :items="messages.data.msg"
+                  height="550"
+                  item-height="64"
+              >
+                <template v-slot:default="{ item, index }">
+                  <v-list-item :key="item">
+                    <v-list-item-action>
+                      <v-btn
+                          small
+                          rounded
+                          depressed
+                          color="primary"
+                      >
+                        <small>{{ makeTimeFromOffset(messages.data.offset[index]) }}</small>
+                      </v-btn>
+                    </v-list-item-action>
+
+                    <v-list-item-content>
+                      <v-list-item-title>
+                        {{ item }}
+                      </v-list-item-title>
+                    </v-list-item-content>
+
+                  </v-list-item>
+
+                  <v-divider></v-divider>
+                </template>
+              </v-virtual-scroll>
+            </v-card>
+          </v-col>
+
+        </v-row>
+
+        <v-row class="mt-12">
           <v-card
               class="mx-auto"
               max-width="800"
