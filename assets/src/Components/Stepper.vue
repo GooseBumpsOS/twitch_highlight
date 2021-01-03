@@ -101,6 +101,20 @@ export default {
             thumb-label="always"
         ></v-slider>
 
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <v-icon
+                color="primary"
+                dark
+                v-bind="attrs"
+                v-on="on"
+            >
+              mdi-comment-question
+            </v-icon>
+          </template>
+          <span>Коэффициент роста показывает, как сильно должно измениться кол-во ключевых слов за одну минуту</span>
+        </v-tooltip>
+
         <v-btn
             class="mt-2"
             color="primary"
@@ -117,6 +131,19 @@ export default {
       </v-stepper-content>
 
       <v-stepper-content step="3">
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on, attrs }">
+            <v-icon
+                color="primary"
+                dark
+                v-bind="attrs"
+                v-on="on"
+            >
+              mdi-comment-question
+            </v-icon>
+          </template>
+          <span>На какие ключевые слова стоит роботу обратить внимание, вводится через запятую</span>
+        </v-tooltip>
         <v-text-field v-model="keywords" label="Ключевые слова через запятую"></v-text-field>
 
         <v-btn
