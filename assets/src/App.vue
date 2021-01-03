@@ -2,6 +2,9 @@
 import Stepper from './Components/Stepper';
 import Api from './Service/Api';
 import Graph from './Components/Graph';
+import CsvExporter from './Service/CsvExporter';
+import TimeConverter from './Service/TimeConverter';
+import TwitchHelper from './Service/TwitchHelper';
 
 export default {
   name: 'App',
@@ -34,28 +37,35 @@ export default {
     },
   },
   methods: {
-    createMessage(msg, emoticons) {
-      let result = msg;
+    convertToCsv() {
+      let exportCsv = () => {
+        let exportData = [];
 
-      if (emoticons !== null) {
-        let finds = [];
-        emoticons.forEach((currentValue) => {
-          finds.push(result.slice(currentValue.begin, currentValue.end + 1));
+        this.messages.data.msg.forEach((currentEl, index) => {
+          exportData.push([currentEl, this.messages.data.offset[index]]);
         });
 
-        finds.forEach((currentValue, index) => {
-          result = result.replace(currentValue,
-              `<img src='https://static-cdn.jtvnw.net/emoticons/v2/${emoticons[index]._id}/default/light/1.0'>`);
-        });
+        CsvExporter.exportCsv(exportData);
+      };
+
+      if (this.messages.data.msg === undefined) {
+        this.getChatMessages(exportCsv);
+      } else {
+        exportCsv();
       }
-
-      return result;
     },
-    getChatMessages() {
+    createMessage(msg, emoticons) {
+      return TwitchHelper.convertSerMessage(msg, emoticons);
+    },
+    getChatMessages(callback = null) {
       let api = new Api();
       this.messages.isLoading = true;
       api.get(`/api/chat/${this.analysisData.videoId}`).then((resp) => {
         this.messages.data = resp.data;
+
+        if (callback !== null) {
+          callback(resp);
+        }
       }).finally(() => {
         this.messages.isLoading = false;
       });
@@ -81,7 +91,7 @@ export default {
       });
     },
     getTwitchUrl(offset) {
-      return `https://www.twitch.tv/videos/${this.analysisData.videoId}?t=${offset}s`;
+      return TwitchHelper.makeTwitchUrl(this.analysisData.videoId, offset);
     },
     isReadyInterval(videoId) {
       let api = new Api();
@@ -96,24 +106,7 @@ export default {
       );
     },
     makeTimeFromOffset(offset) {
-      let date = new Date(offset * 1000);
-
-      let minutes = date.getMinutes().toString();
-      if (minutes.length === 1) {
-        minutes = '0' + minutes;
-      }
-
-      let seconds = date.getSeconds().toString();
-      if (seconds.length === 1) {
-        seconds = '0' + seconds;
-      }
-
-      let hours = (date.getHours() - 3).toString();
-      if (hours.length === 1) {
-        hours = '0' + hours;
-      }
-
-      return hours + ':' + minutes + ':' + seconds;
+      return TimeConverter.convert(offset);
     },
   },
 };
@@ -190,7 +183,9 @@ export default {
                 </v-col>
 
                 <v-col>
-                  <v-btn>
+                  <v-btn
+                      @click="convertToCsv"
+                  >
                     Скачать чат(CSV)
                   </v-btn>
                 </v-col>
